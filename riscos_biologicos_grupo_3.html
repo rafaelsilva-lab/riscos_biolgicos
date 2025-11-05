@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trabalho: Riscos Biológicos e CIPA</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- VARIÁVEIS DE DESIGN (A MÁGICA DO UI/UX) --- */
+        :root {
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            
+            --color-primary: #1A3B5D; /* Azul Naval Profundo */
+            --color-secondary: #5A6A7B; /* Cinza Técnico */
+            --color-accent: #FFB800; /* Âmbar de Alerta */
+            --color-danger: #D93025; /* Vermelho Focado */
+            --color-success: #28a745; /* Verde (para fungos) */
+            
+            --color-bg: #F8F9FA; /* Fundo de página (cinza bem claro) */
+            --color-card: #FFFFFF; /* Fundo de seções (branco) */
+            --color-text-dark: #212529; /* Texto principal */
+            
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.07);
+            --border-radius: 12px; /* Bordas mais suaves */
+        }
+
+        /* --- GERAL --- */
+        body {
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 0;
+            background-color: var(--color-bg);
+            color: var(--color-text-dark);
+            line-height: 1.7; /* Mais espaçamento entre linhas */
+        }
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        /* --- TIPOGRAFIA --- */
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+        h2 {
+            font-size: 2.5em;
+            font-weight: 600;
+            border-bottom: 3px solid var(--color-accent);
+            padding-bottom: 15px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 12px; /* Mais espaçamento entre itens */
+        }
+        li::marker {
+            color: var(--color-accent); /* Estiliza a bolinha da lista */
+        }
+
+        /* --- CABEÇALHO --- */
+        header {
+            background-color: var(--color-primary);
+            color: #FFFFFF;
+            padding: 40px 20px; /* Mais "respiro" */
+            text-align: center;
+        }
+        header h1 {
+            font-size: 3em;
+            color: #FFFFFF;
+            margin: 0;
+        }
+        header p {
+            margin: 0;
+            font-size: 1.3em;
+            color: #E0E8F1; /* Tom de azul mais claro */
+            opacity: 0.9;
+        }
+
+        /* --- NAVEGAÇÃO "GLASSMORPHISM" (O TOQUE '30K') --- */
+        nav {
+            background: rgba(255, 255, 255, 0.85); /* Fundo branco semi-transparente */
+            backdrop-filter: blur(10px); /* O efeito de vidro fosco */
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 0;
+            text-align: center;
+            position: sticky; /* Fica "grudada" no topo */
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #E0E0E0; /* Linha sutil de separação */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Sombra suave */
+        }
+        nav a {
+            color: var(--color-primary); /* Texto escuro sobre fundo claro */
+            text-decoration: none;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            display: inline-block; /* Garante consistência */
+        }
+        nav a:hover {
+            color: var(--color-danger);
+            background-color: #F1F3F5; /* Destaque sutil ao passar o mouse */
+        }
+
+        /* --- SEÇÕES DE CONTEÚDO --- */
+        section {
+            background: var(--color-card);
+            margin-bottom: 30px;
+            padding: 30px 40px; /* Mais padding interno */
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        /* Destaque visual na seção principal (NR 32) */
+        #grupo3 {
+            border-top: 5px solid var(--color-danger);
+        }
+        
+        /* --- INTERATIVIDADE: CARTÕES REDESENHADOS --- */
+        .interactive-title {
+            text-align: center;
+            font-style: italic;
+            color: var(--color-secondary);
+            font-size: 1.1em;
+        }
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 25px;
+            margin-top: 25px;
+        }
+        .risk-card {
+            background-color: transparent;
+            width: 300px;
+            height: 220px; /* Um pouco mais alto */
+            perspective: 1000px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        /* Efeito "pop" ao passar o mouse */
+        .risk-card:hover {
+            transform: scale(1.03);
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d; /* CORRIGIDO: Era 'preserve-d;' */
+        }
+        .risk-card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        /* DESIGN DA FRENTE E VERSO (O NOVO DESIGN) */
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box; 
+            
+            /* Cartão branco com sombra sutil */
+            background-color: var(--color-card);
+            color: var(--color-text-dark);
+            box-shadow: var(--shadow-soft);
+        }
+        
+        /* Frente do Cartão */
+        .card-front h3 {
+            color: var(--color-primary);
+            font-size: 1.5em;
+            font-weight: 600;
+            margin: 0;
+        }
+        .card-front p {
+            font-size: 1em;
+            color: var(--color-secondary);
+        }
+        .biohazard-symbol {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+        }
+        /* Colore os ícones */
+        .risk-card[data-type="virus"] .biohazard-symbol { color: var(--color-danger); }
+        .risk-card[data-type="bacteria"] .biohazard-symbol { color: var(--color-accent); }
+        .risk-card[data-type="fungi"] .biohazard-symbol { color: var(--color-success); }
+
+        /* Verso do Cartão */
+        .card-back {
+            transform: rotateY(180deg);
+            justify-content: flex-start; /* Alinha no topo */
+            align-items: flex-start; /* Alinha à esquerda */
+            text-align: left;
+            border-top: 5px solid; /* Borda colorida */
+        }
+        .card-back h4 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+         .card-back p {
+            font-size: 0.95em;
+            color: var(--color-secondary);
+            margin: 5px 0;
+        }
+        /* Colore a borda e o título do verso */
+        .risk-card[data-type="virus"] .card-back { border-top-color: var(--color-danger); }
+        .risk-card[data-type="virus"] .card-back h4 { color: var(--color-danger); }
+        
+        .risk-card[data-type="bacteria"] .card-back { border-top-color: var(--color-accent); }
+        .risk-card[data-type="bacteria"] .card-back h4 { color: var(--color-accent); }
+        
+        .risk-card[data-type="fungi"] .card-back { border-top-color: var(--color-success); }
+        .risk-card[data-type="fungi"] .card-back h4 { color: var(--color-success); }
+
+        /* --- SEÇÃO DE REFERÊNCIAS (ESCONDIDA) --- */
+        .references-section {
+            background: none;
+            box-shadow: none;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .references-section details {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #E9ECEF; /* Fundo cinza claro */
+            border-radius: 8px;
+            padding: 20px 30px;
+            border: 1px solid #DDE2E7;
+            text-align: left;
+        }
+        .references-section summary {
+            font-weight: 600;
+            color: var(--color-primary);
+            cursor: pointer;
+            list-style: '📚 '; /* Emoji como marcador */
+            font-size: 1.2em;
+        }
+        .references-section ul {
+            margin-top: 15px;
+        }
+        .references-section li {
+            font-size: 0.9em;
+            color: var(--color-secondary);
+            margin-bottom: 8px;
+        }
+        .references-section li::marker {
+            color: var(--color-secondary);
+        }
+
+        /* --- RODAPÉ --- */
+        footer {
+            text-align: center;
+            padding: 30px;
+            background-color: var(--color-text-dark); /* Mais escuro */
+            color: #CED4DA; /* Cinza claro */
+            margin-top: 40px;
+        }
+        footer p {
+            color: #CED4DA;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        /* ========================================= */
+        /* --- CORREÇÃO DE RESPONSIVIDADE DO MENU --- */
+        /* ========================================= */
+
+        @media (max-width: 768px) {
+            
+            /* Ajusta o tamanho da fonte principal no mobile */
+            h2 {
+                font-size: 2.1em;
+            }
+            header h1 {
+                font-size: 2.5em;
+            }
+
+            /* --- A MÁGICA PARA O MENU --- */
+            nav {
+                padding: 10px 0; /* Menos padding vertical */
+            }
+            
+            nav a {
+                display: block; /* Faz os links se empilharem */
+                width: 90%; /* Ocupa 90% da largura */
+                margin: 5px auto; /* Centraliza o bloco e dá espaço */
+                padding-top: 12px;
+                padding-bottom: 12px;
+                border: 1px solid #E0E0E0; /* Adiciona uma borda sutil */
+            }
+            /* --- FIM DA MÁGICA DO MENU --- */
+            
+            /* Ajusta o padding das seções no mobile */
+            section {
+                padding: 20px;
+            }
+
+            /* Ajusta os títulos dos cartões */
+            .card-front h3 {
+                font-size: 1.3em;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>☣️ Riscos Biológicos ☣️</h1>
+        <p>Análise de Riscos Ocupacionais e o Papel da CIPA</p>
+    </header>
+
+    <nav>
+        <a href="#grupo3">Início</a>
+        <a href="#medidas">Medidas Gerais</a>
+        <a href="#cipa">CIPA (NR 5)</a>
+    </nav>
+
+    <main class="container">
+
+        <section id="grupo3">
+            <h2>Grupo 3: Riscos Biológicos (NR 32)</h2>
+            <p>Os riscos biológicos são considerados os agentes como bactérias, fungos, parasitas, protozoários, vírus, entre outros. A Norma Regulamentadora 32 (NR 32) estabelece as diretrizes para a proteção dos trabalhadores da saúde.</p>
+            
+            <h3>Principais Pontos da NR 32</h3>
+            <ul>
+                <li>
+                    <strong>Classificação dos Agentes Biológicos:</strong> A NR 32 adota a classificação de risco em 4 classes:
+                    <ul>
+                        <li><strong>Classe 1:</strong> Baixo risco individual e comunitário (Ex: *Lactobacillus*).</li>
+                        <li><strong>Classe 2:</strong> Risco individual moderado, comunitário limitado (Ex: Vírus da Hepatite B, *Staphylococcus aureus*).</li>
+                        <li><strong>Classe 3:</strong> Risco individual elevado, comunitário baixo/moderado (Ex: *Mycobacterium tuberculosis*, HIV).</li>
+                        <li><strong>Classe 4:</strong> Risco individual e comunitário elevado, sem tratamento/profilaxia (Ex: Vírus Ebola, Marburg).</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Fontes de Exposição:</strong> Ocorrem em hospitais (contato com pacientes, sangue, fluidos), laboratórios (manipulação de amostras), coleta de resíduos de saúde, veterinária e necrotérios.
+                </li>
+                <li>
+                    <strong>Medidas de Proteção Coletiva (EPCs):</strong> São prioritárias e incluem: Cabines de Segurança Biológica (CSB), autoclaves para esterilização, sistemas de ventilação com filtros HEPA (para isolamento), pias de acionamento não manual e caixas coletoras de perfurocortantes (Descarpack).
+                </li>
+                <li>
+                    <strong>Medidas de Proteção Individual (EPIs):</strong> Essenciais quando o EPC não elimina o risco. Incluem: Luvas (procedimento/estéreis), Máscaras (cirúrgica ou respirador N95/PFF2 para aerossóis), Óculos de Proteção, Protetor Facial (Face Shield) e Aventais impermeáveis.
+                </li>
+                <li>
+                    <strong>Vacinação:</strong> O empregador deve fornecer, gratuitamente, as vacinas obrigatórias (Hepatite B, Tétano) e outras conforme o risco (Gripe, Febre Amarela), com controle registrado no PCMSO.
+                </li>
+                <li>
+                    <strong>Gerenciamento de Resíduos (PGRSS):</strong> Plano obrigatório (RDC 222/2018) que define a correta segregação (separação na fonte), acondicionamento (sacos e caixas corretas), coleta, armazenamento e destinação final (tratamento e aterro) de todo resíduo hospitalar.
+                </li>
+            </ul>
+
+            <h3 class="interactive-title">Exemplos Interativos (Clique nos cartões)</h3>
+            <div class="card-container">
+                
+                <div class="risk-card" data-type="virus">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="biohazard-symbol">🦠</div>
+                            <h3>Vírus</h3>
+                            <p>(Clique para saber mais)</p>
+                        </div>
+                        <div class="card-back">
+                            <h4>Exemplos e Prevenção</h4>
+                            <p><strong>Ex:</strong> Hepatite B, HIV, Influenza (Gripe), COVID-19.</p>
+                            <p><strong>Prevenção:</strong> Vacinação, uso de máscaras, óculos e luvas, higiene das mãos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card" data-type="bacteria">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="biohazard-symbol">🧫</div>
+                            <h3>Bactérias</h3>
+                            <p>(Clique para saber mais)</p>
+                        </div>
+                        <div class="card-back">
+                            <h4>Exemplos e Prevenção</h4>
+                            <p><strong>Ex:</strong> Tuberculose (Micobactéria), Tétano (Clostridium tetani).</p>
+                            <p><strong>Prevenção:</strong> Uso de EPIs (máscara N95 para tuberculose), vacinação (tétano), esterilização de materiais.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="risk-card" data-type="fungi">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="biohazard-symbol">🍄</div>
+                            <h3>Fungos</h3>
+                            <p>(Clique para saber mais)</p>
+                        </div>
+                        <div class="card-back">
+                            <h4>Exemplos e Prevenção</h4>
+                            <p><strong>Ex:</strong> Histoplasmose, Candidíase ocupacional.</p>
+                            <p><strong>Prevenção:</strong> Controle de umidade, limpeza de dutos de ar-condicionado, uso de EPIs em áreas de risco.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="medidas">
+            <h2>Medidas Gerais de Segurança no Trabalho</h2>
+            <p>Conforme a legislação (CLT e Normas Regulamentadoras, especialmente a NR 1), a responsabilidade pela segurança é compartilhada.</p>
+
+            <h3>Deveres da Empresa (Empregador)</h3>
+            <ul>
+                <li>Cumprir e fazer cumprir as normas de segurança e medicina do trabalho.</li>
+                <li>Elaborar e implementar programas como o PGR (Programa de Gerenciamento de Riscos - NR 1) e o PCMSO (Programa de Controle Médico de Saúde Ocupacional - NR 7).</li>
+                <li>Informar os trabalhadores sobre os riscos no local de trabalho e as medidas de prevenção.</li>
+                <li>Fornecer gratuitamente Equipamentos de Proteção Individual (EPIs) adequados ao risco, em perfeito estado, e exigir seu uso (NR 6).</li>
+                <li>Implementar Equipamentos de Proteção Coletiva (EPCs).</li>
+                <li>Oferecer treinamento sobre o uso de EPIs, procedimentos seguros e riscos da função.</li>
+            </ul>
+
+            <h3>Deveres do Trabalhador (Empregado)</h3>
+            <ul>
+                <li>Cumprir as disposições legais e regulamentares sobre segurança, incluindo as ordens de serviço expedidas pelo empregador.</li>
+                <li>Usar o EPI fornecido apenas para a finalidade a que se destina, responsabilizando-se por sua guarda e conservação.</li>
+                <li>Comunicar imediatamente ao seu superior qualquer situação que considere de risco grave e iminente à sua segurança ou à de terceiros.</li>
+                <li>Colaborar com a empresa na aplicação das normas de segurança.</li>
+                <li>Submeter-se aos exames médicos previstos no PCMSO (NR 7).</li>
+            </ul>
+        </section>
+
+        <section id="cipa">
+            <h2>O Direito do Trabalhador à Segurança: CIPA (NR 5)</h2>
+            <p>A Comissão Interna de Prevenção de Acidentes e de Assédio (CIPA) é regulamentada pela NR 5 e é um dos pilares mais importantes da segurança do trabalho no Brasil.</p>
+
+            <h3>Pontos Principais da CIPA</h3>
+            <ul>
+                <li><strong>O que é e Objetivo:</strong> A CIPA tem como objetivo a prevenção de acidentes e doenças decorrentes do trabalho. Recentemente, a NR 5 foi atualizada para incluir também a obrigação de atuar na prevenção e combate ao assédio sexual e outras formas de violência no trabalho.</li>
+                <li><strong>Composição:</strong> É uma comissão paritária, composta por representantes do Empregador (por ele indicados) e representantes dos Empregados (eleitos em votação secreta). O número de membros varia conforme o grau de risco e o número de funcionários da empresa.</li>
+                <li><strong>Estabilidade (Cipeiro):</strong> Os membros eleitos pelos empregados (titulares e suplentes) possuem estabilidade provisória no emprego. Eles não podem ser demitidos arbitrariamente (sem justa causa) desde o registro de sua candidatura até um ano após o término de seu mandato.</li>
+                <li><strong>Atribuições Principais:</strong>
+                    <ul>
+                        <li>Identificar os riscos do processo de trabalho e elaborar o Mapa de Riscos.</li>
+                        <li>Acompanhar a avaliação de riscos do PGR (Programa de Gerenciamento de Riscos).</li>
+                        <li>Realizar inspeções periódicas nos ambientes de trabalho.</li>
+                        <li>Participar da investigação de acidentes de trabalho.</li>
+                        <li>Promover anualmente a SIPAT (Semana Interna de Prevenção de Acidentes do Trabalho).</li>
+                        <li>Adotar medidas e promover treinamentos sobre a prevenção ao assédio.</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <section id="referencias" class="references-section">
+            <details>
+                <summary>Fontes e Referências Bibliográficas</summary>
+                <p>O conteúdo deste trabalho foi elaborado com base nas seguintes Normas Regulamentadoras (NRs) e legislações do Governo Federal Brasileiro:</p>
+                <ul>
+                    <li>BRASIL. Ministério do Trabalho e Previdência. <strong>Norma Regulamentadora Nº 32 (NR 32)</strong> - Segurança e Saúde no Trabalho em Serviços de Saúde.</li>
+                    <li>BRASIL. Ministério do Trabalho e Previdência. <strong>Norma Regulamentadora Nº 5 (NR 5)</strong> - Comissão Interna de Prevenção de Acidentes e de Assédio (CIPA).</li>
+                    <li>BRASIL. Ministério do Trabalho e Previdência. <strong>Norma Regulamentadora Nº 1 (NR 1)</strong> - Disposições Gerais e Gerenciamento de Riscos Ocupacionais.</li>
+                    <li>BRASIL. Ministério do Trabalho e Previdência. <strong>Norma Regulamentadora Nº 6 (NR 6)</strong> - Equipamento de Proteção Individual (EPI).</li>
+                    <li>BRASIL. ANVISA. <strong>RDC Nº 222, de 28 de março de 2018</strong> - Regulamenta as Boas Práticas de Gerenciamento dos Resíduos de Serviços de Saúde.</li>
+                    <li>BRASIL. Presidência da República. <strong>Decreto-Lei nº 5.452, de 1º de maio de 1943</strong> - Aprova a Consolidação das Leis do Trabalho (CLT).</li>
+                </ul>
+            </details>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Trabalho sobre Riscos Biológicos - Grupo 3</p>
+        <p>ALICE ANDRADE DE SOUZA / ANA CRISTINA SILVA DRUMMOND / AMANDA DA SILVA SEVERIANO / HENDRIX KEVIN LOPES DE SOUZA / MARIA AMELIA NOGUEIRA / RAFAEL FELISBINO ROCHA DA SILVA - Curso técnico de Enfermagem</p>
+    </footer>
+
+    <script>
+        // --- SCRIPT DE INTERATIVIDADE ---
+        const cards = document.querySelectorAll('.risk-card');
+
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('flipped');
+            });
+        });
+
+        // --- SCRIPT DE ROLAGEM SUAVE DA NAV ---
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    // Calcula a posição do elemento
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    // Pega a posição de rolagem atual
+                    const offsetPosition = elementPosition + window.pageYOffset - 80; // 80px de offset para compensar a nav "grudenta"
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
